@@ -14,13 +14,13 @@ class URLDownloader:
 	def __init__(self, url_pattern): 
 		self.url_pattern = url_pattern
 
-	# Converts the pattern "{01..20}" to the tuple ('01','20')
+	# Converts the pattern "[01-20]" to the tuple ('01','20')
 	def extract_range(self, s):
-		range_pattern = re.compile('\{(\d+)\.\.(\d+)\}')
+		range_pattern = re.compile('\[(\d+)-(\d+)\]')
 		range_match = range_pattern.search(s)
 	
 		if range_match == None:
-			raise UserError("Couldn't find a numeric range in the URL. Examples: {1..20}, {001..020}")
+			raise UserError("Couldn't find a numeric range in the URL. Examples: [1-20], [001-020]")
 		else:
 			return (range_match.group(1), range_match.group(2))
 
@@ -36,7 +36,7 @@ class URLDownloader:
 			return '%d' # No padding
 
 	def build_url(self, url_pat, sprintf_pat, index):
-		p = re.compile('\{[^\}]*\}')
+		p = re.compile('\[[^\]]*\]')
 		return p.sub(sprintf_pat % index, url_pat)
 
 	def split_url(self, url):
@@ -66,9 +66,8 @@ class URLDownloader:
 
 if __name__ == '__main__':
 	if len(sys.argv) != 2:
-		print "arg len is", len(sys.argv)
 		print "Helps you download files from a website that follow a numeric pattern"
-		print "usage: " + sys.argv[0] + " http://host/filename-{01..10}.jpg | bash\n"
+		print "usage: " + sys.argv[0] + " 'http://host/filename-[01-10].jpg' | bash\n"
 		sys.exit(1)
 
 	try:
@@ -76,4 +75,4 @@ if __name__ == '__main__':
 		for command in dl.commands():
 			print command
 	except UserError, e:
-		print e.message
+		print e
